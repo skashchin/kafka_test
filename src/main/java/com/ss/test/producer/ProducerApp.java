@@ -16,6 +16,6 @@ public class ProducerApp {
         ScheduledExecutorService producerService = Executors.newScheduledThreadPool(1);
         MessageProducerTask messageProducerTask = new MessageProducerTask(producer, KafkaConfig.MESSAGE_COUNT_PER_SEC);
 
-        producerService.scheduleAtFixedRate(messageProducerTask, 0,1, TimeUnit.SECONDS);
+        producerService.schedule(messageProducerTask, 0, TimeUnit.SECONDS);
     }
 }

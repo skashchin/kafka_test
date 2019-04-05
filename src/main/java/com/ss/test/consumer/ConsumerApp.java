@@ -18,8 +18,14 @@ public class ConsumerApp {
 
         while (true) {
             System.out.println("Polling messages");
+            long timePollStart = System.currentTimeMillis();
             final ConsumerRecords<Long, String> consumerRecords = consumer.poll(Duration.ofSeconds(POLL_RATE_SEC));
-            if (consumerRecords.count() == 0) {
+            long timePollEnd = System.currentTimeMillis();
+            int recordCount = consumerRecords.count();
+
+            System.out.println("Polling " + recordCount + " took " + (timePollEnd - timePollStart) + " ms");
+
+            if (recordCount == 0) {
                 noMessageToFetch++;
                 if (noMessageToFetch > KafkaConfig.MAX_NO_MESSAGE_FOUND_COUNT) {
                     break;
@@ -29,11 +35,21 @@ public class ConsumerApp {
                 }
             }
 
+            System.out.println("Consumer rec count: " + recordCount);
+
+            long timeRecStart = System.currentTimeMillis();
             consumerRecords.forEach(record -> {
-                System.out.println("Record value " + record.value());
+            //    System.out.println("Record value " + record.value());
 
                 elasticWriter.write(record.value());
             });
+
+            long timeRecEnd = System.currentTimeMillis();
+            long totalRunTime = timeRecEnd - timeRecStart;
+            float recPerSec = ((float) recordCount / totalRunTime) * 1000;
+
+            System.out.println("Writing " + recordCount + " took " + totalRunTime + " ms, " + recPerSec + " msg/sec");
+
 
 
             consumer.commitAsync();

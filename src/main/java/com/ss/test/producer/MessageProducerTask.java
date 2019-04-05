@@ -5,11 +5,9 @@ import com.ss.test.producer.model.SsHttpMessage;
 import com.ss.test.producer.model.SsHttpModelBuilder;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class MessageProducerTask implements Runnable {
     private Producer<Long, SsHttpMessage> producer;
@@ -22,17 +20,22 @@ public class MessageProducerTask implements Runnable {
 
     @Override
     public void run() {
+        long timeCreate = System.currentTimeMillis();
         List<ProducerRecord<Long, SsHttpMessage>> records = createRecords(messageCount);
+        long timeCreateEnd = System.currentTimeMillis();
 
+        System.out.println("Creating " + messageCount + " records took " + (timeCreateEnd - timeCreate));
+
+        long timeRecStart = System.currentTimeMillis();
         records.forEach(r -> {
-            try {
-                RecordMetadata metadata = producer.send(r).get();
-                System.out.println("Record sent to partition " + metadata.partition() + " with offset "
-                        + metadata.offset());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            producer.send(r);
         });
+
+        long timeRecEnd = System.currentTimeMillis();
+
+        long totalRunTime = timeRecEnd - timeRecStart;
+        System.out.println("Recording of " + messageCount + " records took " + totalRunTime);
+        System.out.println("Recorded " + (((float) messageCount / totalRunTime) * 1000) + " msg/sec");
     }
 
     private List<ProducerRecord<Long, SsHttpMessage>> createRecords(int count) {

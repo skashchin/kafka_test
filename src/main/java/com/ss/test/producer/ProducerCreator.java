@@ -17,7 +17,7 @@ public class ProducerCreator {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, KafkaConfig.CLIENT_ID);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        props.put(ProducerConfig.BATCH_SIZE_CONFIG, KafkaConfig.BATCH_SIZE);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, KafkaConfig.BATCH_SIZE_BYTES);
 
         return new KafkaProducer<>(props);
     }
