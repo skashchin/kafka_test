@@ -5,6 +5,8 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.ss.test.common.KafkaConfig.POLL_RATE_SEC;
 
@@ -38,11 +40,12 @@ public class ConsumerApp {
             System.out.println("Consumer rec count: " + recordCount);
 
             long timeRecStart = System.currentTimeMillis();
+            List<String> bulkList = new ArrayList<>();
             consumerRecords.forEach(record -> {
-            //    System.out.println("Record value " + record.value());
-
-                elasticWriter.write(record.value());
+                bulkList.add(record.value());
             });
+
+            elasticWriter.writeAll(bulkList);
 
             long timeRecEnd = System.currentTimeMillis();
             long totalRunTime = timeRecEnd - timeRecStart;
